@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seating Arrangement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color:azure;
+        }
+        .seat {
+            width: 60px;
+            height: 60px;
+            margin: 10px;
+            display: inline-block;
+            background-color: #87CEEB;
+            border: 1px solid #00BFFF;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 60px;
+            transition: background-color 0.3s ease;
+        }
+        .seat.selected {
+            background-color: #32CD32;
+        }
+        .seat.occupied {
+            background-color: #B22222;
+            cursor: not-allowed;
+        }
+        .seating-area {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 20px;
+            cursor: pointer;
+            background-color: #00BFFF;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Seating Arrangement</h1>
+    <p>Click on a seat to see its number. Drag a seat to exchange with another seat. Click "Rearrange" to shuffle the seats.</p>
+
+    <div class="seating-area">
+        <!-- Column 1 (4 seats) -->
+        <div class="column" id="column1"></div>
+        <!-- Column 2 (6 seats) -->
+        <div class="column" id="column2"></div>
+        <!-- Column 3 (6 seats) -->
+        <div class="column" id="column3"></div>
+        <!-- Column 4 (6 seats) -->
+        <div class="column" id="column4"></div>
+        <!-- Column 5 (6 seats) -->
+        <div class="column" id="column5"></div>
+        <!-- Column 6 (5 seats) -->
+        <div class="column" id="column6"></div>
+        <!-- Column 7 (4 seats) -->
+        <div class="column" id="column7"></div>
+    </div>
+
+    <button onclick="rearrangeSeats()">Rearrange</button>
+
+    <script>
+        // Initial seat numbers excluding 19
+        let seats = [];
+        for (let i = 1; i <= 38; i++) {
+            if (i !== 19) seats.push(i);
+        }
+
+        // Seat columns configuration
+        const columnsConfig = [4, 6, 6, 6, 6, 5, 4];
+
+        // Function to create the seating arrangement
+        function createSeats() {
+            let seatIndex = 0;
+            columnsConfig.forEach((numSeats, colIndex) => {
+                const column = document.getElementById(`column${colIndex + 1}`);
+                for (let i = 0; i < numSeats; i++) {
+                    const seat = document.createElement('div');
+                    seat.classList.add('seat');
+                    seat.textContent = seats[seatIndex++];
+                    seat.setAttribute('draggable', true);
+                     seat.onclick = () => alert(`You selected seat number ${seat.textContent}`);
+                    // Add drag and drop event listeners
+                    seat.addEventListener('dragstart', handleDragStart);
+                    seat.addEventListener('dragover', handleDragOver);
+                    seat.addEventListener('drop', handleDrop);
+
+                    column.appendChild(seat);
+                }
+            });
+        }
+
+        let draggedSeat = null;
+
+        // Function to handle the dragstart event
+        function handleDragStart(e) {
+            draggedSeat = e.target;
+            e.target.style.opacity = 1;  // Slightly transparent to indicate drag
+        }
+
+        // Function to handle the dragover event
+        function handleDragOver(e) {
+            e.preventDefault();  // Allow drop
+        }
+
+        // Function to handle the drop event
+        function handleDrop(e) {
+            e.preventDefault();
+            if (draggedSeat !== e.target && e.target.classList.contains('seat')) {
+                const temp = draggedSeat.textContent;
+                draggedSeat.textContent = e.target.textContent;
+                e.target.textContent = temp;
+                e.target.style.opacity = 1;
+            }
+        }
+
+        // Function to rearrange seats randomly
+        function rearrangeSeats() {
+            // Shuffle the seat numbers array
+            for (let i = seats.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [seats[i], seats[j]] = [seats[j], seats[i]];
+            }
+
+            // Update the seat numbers in the DOM
+            let seatIndex = 0;
+            document.querySelectorAll('.seat').forEach(seat => {
+                seat.textContent = seats[seatIndex++];
+            });
+        }
+
+        // Initial seat arrangement
+        createSeats();
+    </script>
+</body>
+</html>
